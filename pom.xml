@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>de.unisb.cs.st</groupId>
+    <artifactId>sequitur</artifactId>
+    <name>Sequitur compression algorithm</name>
+    <description></description>
+
+    <version>0.5-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <url>http://www.st.cs.uni-sb.de/</url>
+    <inceptionYear>2008</inceptionYear>
+
+    <developers>
+        <developer>
+            <id>hammacher</id>
+            <name>Clemens Hammacher</name>
+            <email>hammacher@st.cs.uni-sb.de</email>
+            <url>http://www.st.cs.uni-sb.de/~hammacher/</url>
+            <organization>Software Engineering Group at Saarland University</organization>
+            <organizationUrl>http://www.st.cs.uni-sb.de/</organizationUrl>
+            <timezone>2</timezone>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>dallmeier</id>
+            <name>Valentin Dallmeier</name>
+            <email>dallmeier@st.cs.uni-sb.de</email>
+            <url>http://www.st.cs.uni-sb.de/~dallmeier/</url>
+            <organization>Software Engineering Group at Saarland University</organization>
+            <organizationUrl>http://www.st.cs.uni-sb.de/</organizationUrl>
+            <timezone>2</timezone>
+            <roles>
+                <role>Tutor</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>mburger</id>
+            <name>Martin Burger</name>
+            <email>mburger@cs.uni-sb.de</email>
+            <url>http://www.st.cs.uni-sb.de/~mburger/</url>
+            <organization>Software Engineering Group at Saarland University</organization>
+            <organizationUrl>http://www.st.cs.uni-sb.de/</organizationUrl>
+            <timezone>2</timezone>
+            <roles>
+                <role>Tutor</role>
+            </roles>
+        </developer>
+    </developers>
+
+    <!-- TODO Clear licensing with your tutor. -->
+    <!--licenses>
+        <license>
+            <name>Eclipse Public License (EPL)</name>
+            <url>http://www.opensource.org/licenses/eclipse-1.0.txt</url>
+            <distribution>manual</distribution>
+        </license>
+    </licenses-->
+
+    <ciManagement>
+        <system>hudson</system>
+        <url>http://kubrick:8070/</url>
+        <notifiers>
+            <notifier>
+                <type>mail</type>
+                <configuration>
+                    <recipients>hammacher@st.cs.uni-sb.de</recipients>
+                </configuration>
+                <sendOnError>true</sendOnError>
+                <sendOnFailure>true</sendOnFailure>
+                <sendOnSuccess>true</sendOnSuccess>
+                <sendOnWarning>true</sendOnWarning>
+            </notifier>
+            <notifier>
+                <type>mail</type>
+                <configuration>
+                    <recipients>mburger@cs.uni-sb.de</recipients>
+                </configuration>
+                <sendOnError>true</sendOnError>
+                <sendOnFailure>true</sendOnFailure>
+                <sendOnSuccess>false</sendOnSuccess>
+                <sendOnWarning>true</sendOnWarning>
+            </notifier>
+            <notifier>
+                <type>mail</type>
+                <configuration>
+                    <recipients>dallmeier@cs.uni-sb.de</recipients>
+                </configuration>
+                <sendOnError>true</sendOnError>
+                <sendOnFailure>true</sendOnFailure>
+                <sendOnSuccess>false</sendOnSuccess>
+                <sendOnWarning>true</sendOnWarning>
+            </notifier>
+        </notifiers>
+    </ciManagement>
+
+    <scm>
+        <connection>scm:svn:https://svn.st.cs.uni-sb.de/svn/st/projects/java-slicer/trunk/sequitur</connection>
+        <developerConnection>scm:svn:https://svn.st.cs.uni-sb.de/svn/st/projects/java-slicer/trunk/sequitur</developerConnection>
+        <url>https://svn.st.cs.uni-sb.de/svn/st/projects/java-slicer/trunk/sequitur</url>
+    </scm>
+
+    <organization>
+        <name>Software Engineering Group at Saarland University</name>
+        <url>http://www.st.cs.uni-sb.de/</url>
+    </organization>
+
+    <dependencies>
+        <!-- add required dependencies here -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.4</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>de.hammacher</groupId>
+            <artifactId>utilities</artifactId>
+            <version>[1.0,)</version>
+        </dependency>
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>public-chair</id>
+            <name>Archiva Managed Internal Repository Group</name>
+            <url>https://maven.st.cs.uni-sb.de/archiva/repository/group-internal</url>
+        </repository>
+        <repository>
+            <id>hammacher-releases</id>
+            <name>Releases on Clemens Hammachers Nexus server</name>
+            <url>http://hammacher.name:8081/nexus/content/repositories/releases</url>
+        </repository>
+        <repository>
+            <id>hammacher-snapshots</id>
+            <name>Snapshots on Clemens Hammachers Nexus server</name>
+            <url>http://hammacher.name:8081/nexus/content/repositories/snapshots</url>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>codehaus-m2-repository</id>
+            <name>Codehaus Maven 2.x Repository</name>
+            <url>http://repository.codehaus.org/</url>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-eclipse-plugin</artifactId>
+                <configuration>
+                    <downloadSources>true</downloadSources>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.5</source>
+                    <target>1.5</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <source>1.5</source>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <configuration>
+                    <tagBase>https://svn.st.cs.uni-sb.de/svn/st/projects/java-slicer/tags</tagBase>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-surefire-plugin</artifactId>
+              <configuration>
+                <includes>
+                  <include>**/*Test*.java</include>
+                </includes>
+                <argLine>-Xmx1536m</argLine>
+              </configuration>
+            </plugin>
+        </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <!-- We still use Beta 5 because of various bugs:
+                         http://jira.codehaus.org/ - MSITE-262, MSITE-293, MSITE-297 -->
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>2.0-beta-5</version>
+                    <configuration>
+                        <outputEncoding>UTF-8</outputEncoding>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <reporting>
+        <plugins>
+            <!-- Maven Project Info Reports Plugin - http://maven.apache.org/plugins/maven-project-info-reports-plugin/ -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>cim</report>
+                            <report>dependencies</report>
+                            <!--report>issue-tracking</report-->
+                            <report>license</report>
+                            <!--report>mailing-list</report-->
+                            <report>index</report>
+                            <report>summary</report>
+                            <report>scm</report>
+                            <report>project-team</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+            <!-- Maven Changes Report Plugin - http://maven.apache.org/plugins/maven-changes-plugin/ -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-changes-plugin</artifactId>
+            </plugin>
+            <!-- Checkstyle - http://maven.apache.org/plugins/maven-checkstyle-plugin/howto.html -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <configuration>
+                    <configLocation>checkstyle.xml</configLocation>
+                    <headerLocation>checkstyle-license.txt</headerLocation>
+                </configuration>
+            </plugin>
+            <!-- Cobertura - http://mojo.codehaus.org/cobertura-maven-plugin/ -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>cobertura-maven-plugin</artifactId>
+            </plugin>
+            <!-- FindBugs - http://mojo.codehaus.org/findbugs-maven-plugin/howto.html -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <configuration>
+                    <effort>Max</effort>
+                </configuration>
+            </plugin>
+            <!-- JavaDoc - http://maven.apache.org/plugins/maven-javadoc-plugin/configuration.html -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <source>1.5</source>
+                    <show>public</show>
+                    <minmemory>128m</minmemory>
+                    <maxmemory>512m</maxmemory>
+                    <!-- We want individual sets of Javadoc files for each project. -->
+                    <aggregate>false</aggregate>
+                </configuration>
+            </plugin>
+            <!-- JXR - http://maven.apache.org/plugins/maven-jxr-plugin/howto.html -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jxr-plugin</artifactId>
+                <configuration>
+                    <!-- We want individual sets of JXR files for each project. -->
+                    <aggregate>false</aggregate>
+                </configuration>
+            </plugin>
+            <!-- Surefire - http://maven.apache.org/plugins/maven-surefire-report-plugin/howto.html -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-report-plugin</artifactId>
+                <configuration>
+                    <!-- We want individual surefire reports for each project. -->
+                    <aggregate>false</aggregate>
+                </configuration>
+            </plugin>
+            <!-- JavaNCSS - http://mojo.codehaus.org/javancss-maven-plugin/introduction.html -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>javancss-maven-plugin</artifactId>
+            </plugin>
+            <!-- PMD - http://maven.apache.org/plugins/maven-pmd-plugin/ -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <configuration>
+                    <!-- We want individual PMD reports for each project. -->
+                    <aggregate>false</aggregate>
+                    <linkXref>true</linkXref>
+                    <targetJdk>1.5</targetJdk>
+                </configuration>
+            </plugin>
+            <!-- Taglist Maven Plugin - http://mojo.codehaus.org/taglist-maven-plugin/ -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>taglist-maven-plugin</artifactId>
+                <configuration>
+                    <!-- We want individual Taglist reports for each project. -->
+                    <aggregate>false</aggregate>
+                    <tags>
+                        <tag>TODO</tag>
+                        <tag>FIXME</tag>
+                        <tag>XXX</tag>
+                    </tags>
+                </configuration>
+            </plugin>
+            <!-- Maven Changes Report Plugin - http://maven.apache.org/plugins/maven-changelog-plugin/ -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-changelog-plugin</artifactId>
+                <configuration>
+                    <type>range</type>
+                    <range>730</range>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
+
+    <!-- See: http://wiki.st.cs.uni-sb.de/wiki/Maven_Archiva -->
+    <distributionManagement>
+        <!--
+        <repository>
+            <id>internal-releases</id>
+            <name>internal artifacts released by the chair</name>
+            <url>https://maven.st.cs.uni-sb.de/archiva/repository/internal-releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>internal-snapshots</id>
+            <name>internal snapshots deployed by the chair</name>
+            <url>https://maven.st.cs.uni-sb.de/archiva/repository/internal-snapshots</url>
+        </snapshotRepository>
+        <site>
+            <id>chair-public-website</id>
+            <name>Chair's Projects Website</name>
+            <url>file:///tmp/maven-sites/java-slicer</url>
+        </site>
+        -->
+        <repository>
+          <id>hammacher-releases</id>
+          <name>Releases on Clemens Hammachers Nexus server</name>
+          <url>http://hammacher.name:8081/nexus/content/repositories/releases</url>
+        </repository>
+        <snapshotRepository>
+          <id>hammacher-snapshots</id>
+          <name>Snapshots on Clemens Hammachers Nexus server</name>
+          <url>http://hammacher.name:8081/nexus/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+</project>
+
