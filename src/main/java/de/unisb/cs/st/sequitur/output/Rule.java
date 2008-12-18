@@ -2,13 +2,13 @@ package de.unisb.cs.st.sequitur.output;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.util.ArrayDeque;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
 import java.util.TreeSet;
 
+import de.hammacher.util.ArrayQueue;
 import de.hammacher.util.Pair;
 
 // package-private
@@ -186,7 +186,7 @@ class Rule<T> {
         boolean changed = true;
         while (changed) {
             changed = false;
-            final Queue<Rule<T>> queue = new ArrayDeque<Rule<T>>();
+            final Queue<Rule<T>> queue = new ArrayQueue<Rule<T>>();
             final Set<Rule<T>> ready = new HashSet<Rule<T>>();
             queue.add(this);
             ready.add(this);

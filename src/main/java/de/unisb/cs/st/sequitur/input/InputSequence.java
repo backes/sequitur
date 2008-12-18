@@ -3,7 +3,6 @@ package de.unisb.cs.st.sequitur.input;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -49,8 +48,12 @@ public class InputSequence<T> implements Iterable<T> {
                     final int ruleSymLength = rule.symbols.size();
                     final Symbol<T> sym = rule.symbols.get(ruleSymLength-1);
                     if (this.rulePos.length == i) {
-                        this.rulePos = Arrays.copyOf(this.rulePos, 2*i);
-                        this.count = Arrays.copyOf(this.count, 2*i);
+                        int[] newRulePos = new int[2*i];
+                        System.arraycopy(this.rulePos, 0, newRulePos, 0, i);
+                        this.rulePos = newRulePos;
+                        int[] newCount = new int[2*i];
+                        System.arraycopy(this.count, 0, newCount, 0, i);
+                        this.count = newCount;
                     }
                     if (sym instanceof Terminal<?>) {
                         // move behind the last symbol:
@@ -73,8 +76,12 @@ public class InputSequence<T> implements Iterable<T> {
                     final int ruleOffset = position == after ? 0 : rule.findOffset(position - after, afterHolder);
                     after += afterHolder.longValue();
                     if (this.rulePos.length == i) {
-                        this.rulePos = Arrays.copyOf(this.rulePos, 2*i);
-                        this.count = Arrays.copyOf(this.count, 2*i);
+                        int[] newRulePos = new int[2*i];
+                        System.arraycopy(this.rulePos, 0, newRulePos, 0, i);
+                        this.rulePos = newRulePos;
+                        int[] newCount = new int[2*i];
+                        System.arraycopy(this.count, 0, newCount, 0, i);
+                        this.count = newCount;
                     }
                     this.rulePos[i] = ruleOffset;
                     final Symbol<T> sym = rule.symbols.get(ruleOffset);
@@ -139,8 +146,12 @@ public class InputSequence<T> implements Iterable<T> {
                 final Rule<T> rule = ((NonTerminal<T>)sym).getRule();
                 this.ruleStack.add(rule);
                 if (this.rulePos.length == ++depth) {
-                    this.rulePos = Arrays.copyOf(this.rulePos, 2*depth);
-                    this.count = Arrays.copyOf(this.count, 2*depth);
+                    int[] newRulePos = new int[2*depth];
+                    System.arraycopy(this.rulePos, 0, newRulePos, 0, depth);
+                    this.rulePos = newRulePos;
+                    int[] newCount = new int[2*depth];
+                    System.arraycopy(this.count, 0, newCount, 0, depth);
+                    this.count = newCount;
                 }
                 this.rulePos[depth] = 0;
                 this.count[depth] = 0;
@@ -180,8 +191,12 @@ public class InputSequence<T> implements Iterable<T> {
                 final Rule<T> rule = ((NonTerminal<T>)sym).getRule();
                 this.ruleStack.add(rule);
                 if (this.rulePos.length == ++depth) {
-                    this.rulePos = Arrays.copyOf(this.rulePos, 2*depth);
-                    this.count = Arrays.copyOf(this.count, 2*depth);
+                    int[] newRulePos = new int[2*depth];
+                    System.arraycopy(this.rulePos, 0, newRulePos, 0, depth);
+                    this.rulePos = newRulePos;
+                    int[] newCount = new int[2*depth];
+                    System.arraycopy(this.count, 0, newCount, 0, depth);
+                    this.count = newCount;
                 }
                 this.rulePos[depth] = rule.symbols.size()-1;
                 sym = rule.symbols.get(this.rulePos[depth]);
