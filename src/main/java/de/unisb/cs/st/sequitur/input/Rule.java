@@ -13,7 +13,7 @@ import java.util.TreeSet;
 
 import de.hammacher.util.LongArrayList;
 import de.hammacher.util.LongHolder;
-import de.hammacher.util.MyByteArrayInputStream;
+import de.hammacher.util.streams.MyByteArrayInputStream;
 
 // package-private
 class Rule<T> {

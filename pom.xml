@@ -121,7 +121,7 @@
         <dependency>
             <groupId>de.hammacher</groupId>
             <artifactId>utilities</artifactId>
-            <version>1.1</version>
+            <version>1.2.1</version>
         </dependency>
     </dependencies>
 
@@ -134,12 +134,12 @@
         <repository>
             <id>hammacher-releases</id>
             <name>Releases on Clemens Hammachers Nexus server</name>
-            <url>http://hammacher.name:8081/nexus/content/repositories/releases</url>
+            <url>http://hammacher.name:8081/nexus/content/groups/public</url>
         </repository>
         <repository>
             <id>hammacher-snapshots</id>
             <name>Snapshots on Clemens Hammachers Nexus server</name>
-            <url>http://hammacher.name:8081/nexus/content/repositories/snapshots</url>
+            <url>http://hammacher.name:8081/nexus/content/groups/public-snapshots</url>
         </repository>
     </repositories>
 
