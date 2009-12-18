@@ -107,7 +107,9 @@ class Rule<T> {
                 length = 3;
                 break;
             default:
-                throw new InternalError();
+                if (header == -1)
+                    throw new IOException("Unexpected EOF");
+                throw new IOException("Corrupted data");
             }
             final int additionalHeaderBytes = length / 4;
             final MyByteArrayInputStream headerInputStream;
