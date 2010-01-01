@@ -192,6 +192,8 @@ class Grammar<T> {
         final Queue<Rule<T>> ruleQueue = new LinkedList<Rule<T>>();
         // first, fill in already written rules
         // take core of the order!
+        assert(TreeMap.class.equals(this.ruleNumbers.getClass()) ||
+            IdentityHashMap.class.equals(this.ruleNumbers.getClass()));
         if (TreeMap.class.equals(this.ruleNumbers.getClass())) {
             // on a TreeMap, we cannot rely on the size, because it is
             // stored in an int
@@ -215,6 +217,7 @@ class Grammar<T> {
         }
         // then, fill in the first rule of sequences that use this grammar
         for (final OutputSequence<T> seq: this.usingSequences) {
+            seq.finish();
             getRuleNr(seq.firstRule, ruleQueue);
         }
         for (final Rule<T> rule: ruleQueue)

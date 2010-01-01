@@ -13,7 +13,7 @@ public class SharedInputGrammar<T> {
         this.grammar = grammar;
     }
 
-    public static SharedInputGrammar<Object> readFrom(final ObjectInputStream objIn) throws IOException, ClassNotFoundException {
+    public static SharedInputGrammar<?> readFrom(final ObjectInputStream objIn) throws IOException, ClassNotFoundException {
         return new SharedInputGrammar<Object>(Grammar.readFrom(objIn, null, null));
     }
 

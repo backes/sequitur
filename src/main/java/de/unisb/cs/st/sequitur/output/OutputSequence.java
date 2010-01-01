@@ -67,18 +67,19 @@ public class OutputSequence<T> {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
         if (this.firstRule.dummy.next != this.firstRule.dummy) {
             sb.append(this.firstRule.dummy.next);
             for (Symbol<T> s = this.firstRule.dummy.next.next; s != this.firstRule.dummy; s = s.next)
                 sb.append(" ").append(s);
         }
+        if (this.lastValueCount > 0) {
+            sb.append("  + ").append(this.lastValueCount).append("x").append(this.lastValue);
+        }
 
-        final Set<Rule<T>> rules = this.firstRule.getUsedRules();
-        for (final Rule<T> r: rules)
+        Set<Rule<T>> rules = this.firstRule.getUsedRules();
+        for (Rule<T> r: rules)
             sb.append(System.getProperty("line.separator")).append(r);
-        // TODO remove
-        sb.append(System.getProperty("line.separator")).append(System.getProperty("line.separator"));
         return sb.toString();
     }
 

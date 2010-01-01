@@ -267,7 +267,7 @@ public class InputSequence<T> implements Iterable<T> {
         return sb.toString();
     }
 
-    public static InputSequence<Object> readFrom(final ObjectInputStream objIn)
+    public static InputSequence<?> readFrom(final ObjectInputStream objIn)
             throws IOException, ClassNotFoundException {
         return readFrom(objIn, SharedInputGrammar.readFrom(objIn));
     }

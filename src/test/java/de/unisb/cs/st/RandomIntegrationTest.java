@@ -19,20 +19,21 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import de.unisb.cs.st.sequitur.input.InputSequence;
+import de.unisb.cs.st.sequitur.input.SharedInputGrammar;
 import de.unisb.cs.st.sequitur.output.OutputSequence;
+import de.unisb.cs.st.sequitur.output.SharedOutputGrammar;
 
 
 @RunWith(Parameterized.class)
 public class RandomIntegrationTest {
 
-    private final static int numTests = 10000;
+    private final static int numTests = 2000;
 
     private final int length;
     private final long seed;
 
 
     public RandomIntegrationTest(int length, long seed) {
-        super();
         this.length = length;
         this.seed = seed;
     }
@@ -58,13 +59,13 @@ public class RandomIntegrationTest {
     }
 
     @Test
-    public void test() {
+    public void privateGrammar() {
         try {
             Random rand = new Random(this.seed);
             OutputSequence<Integer> outSeq = new OutputSequence<Integer>();
             int[] ints = new int[this.length];
             for (int i = 0; i < this.length; ++i) {
-                ints[i] = rand.nextInt(this.length);
+                ints[i] = rand.nextInt(1+this.length/5);
                 outSeq.append(ints[i]);
             }
             ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
@@ -87,6 +88,59 @@ public class RandomIntegrationTest {
 
         } catch (Throwable e) {
             throw new RuntimeException("Exception in sequitur test for length " + this.length + "; seed " + this.seed, e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void sharedGrammar() {
+        try {
+            Random rand = new Random(this.seed);
+            int numSequences = this.length / 10;
+            SharedOutputGrammar<Integer> sharedGrammar = new SharedOutputGrammar<Integer>();
+
+            OutputSequence<Integer>[] outSeqs = (OutputSequence<Integer>[]) new OutputSequence<?>[numSequences];
+            for (int k = 0; k < numSequences; ++k) {
+                outSeqs[k] = new OutputSequence<Integer>(sharedGrammar);
+            }
+            int[][] ints = new int[numSequences][this.length];
+
+            for (int i = 0; i < this.length; ++i) {
+                for (int k = 0; k < numSequences; ++k) {
+                    ints[k][i] = rand.nextInt(this.length/5);
+                    outSeqs[k].append(ints[k][i]);
+                }
+            }
+            ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+            ObjectOutputStream objOut = new ObjectOutputStream(byteOut);
+            sharedGrammar.writeOut(objOut);
+            for (int k = 0; k < numSequences; ++k)
+                outSeqs[k].writeOut(objOut, false);
+            objOut.close();
+            byte[] bytes = byteOut.toByteArray();
+
+            ByteArrayInputStream byteIn = new ByteArrayInputStream(bytes);
+            ObjectInputStream objIn = new ObjectInputStream(byteIn);
+            InputSequence<Integer>[] inSeqs = (InputSequence<Integer>[]) new InputSequence<?>[numSequences];
+            SharedInputGrammar<Integer> inGrammar = (SharedInputGrammar<Integer>)SharedInputGrammar.readFrom(objIn);
+            for (int k = 0; k < numSequences; ++k) {
+                inSeqs[k] = InputSequence.readFrom(objIn, inGrammar);
+            }
+
+            assertTrue("expected EOF", objIn.read() == -1);
+
+            for (int k = 0; k < numSequences; ++k) {
+                assertEquals("sequence length", this.length, inSeqs[k].getLength());
+                Iterator<Integer> inIt = inSeqs[k].iterator();
+                for (int i = 0; i < this.length; ++i) {
+                    assertTrue("iterator should have more elements", inIt.hasNext());
+                    assertEquals("value in sequence", ints[k][i], inIt.next().intValue());
+                }
+                assertFalse(inIt.hasNext());
+            }
+
+        } catch (Throwable e) {
+            throw new RuntimeException("Exception in sequitur test with shared grammar for length " + this.length + "; seed " + this.seed, e);
         }
     }
 
