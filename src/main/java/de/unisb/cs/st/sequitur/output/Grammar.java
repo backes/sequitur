@@ -28,8 +28,6 @@ class Grammar<T> {
     private long nextRuleNumber = 0;
 
     /**
-     *
-     * @param first
      * @return whether or not there was a substitution
      */
     public boolean checkDigram(final Symbol<T> first) {
