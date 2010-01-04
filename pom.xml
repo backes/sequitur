@@ -381,7 +381,7 @@
         <site>
             <id>local-tmp</id>
             <name>Local tmp directory</name>
-            <url>file:///tmp/maven-sites/javaslicer</url>
+            <url>file:///tmp/maven-sites/sequitur</url>
         </site>
     </distributionManagement>
 
