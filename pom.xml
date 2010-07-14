@@ -9,7 +9,7 @@
     <name>Sequitur compression algorithm</name>
     <description></description>
 
-    <version>1.0</version>
+    <version>1.0.1</version>
     <packaging>jar</packaging>
     <url>http://www.st.cs.uni-sb.de/</url>
     <inceptionYear>2008</inceptionYear>
