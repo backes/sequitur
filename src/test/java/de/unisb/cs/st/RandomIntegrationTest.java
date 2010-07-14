@@ -105,11 +105,17 @@ public class RandomIntegrationTest {
             }
             int[][] ints = new int[numSequences][this.length];
 
-            for (int i = 0; i < this.length; ++i) {
-                for (int k = 0; k < numSequences; ++k) {
-                    ints[k][i] = rand.nextInt(this.length/5);
-                    outSeqs[k].append(ints[k][i]);
-                }
+            long overall = numSequences * this.length;
+            int[] written = new int[numSequences];
+
+            for (long i = 0; i < overall; ) {
+            	int seq = rand.nextInt(numSequences);
+            	if (written[seq] < this.length) {
+                    ints[seq][written[seq]] = rand.nextInt(this.length/5);
+                    outSeqs[seq].append(ints[seq][written[seq]]);
+                    ++written[seq];
+                    ++i;
+            	}
             }
             ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
             ObjectOutputStream objOut = new ObjectOutputStream(byteOut);
@@ -130,6 +136,7 @@ public class RandomIntegrationTest {
             assertTrue("expected EOF", objIn.read() == -1);
 
             for (int k = 0; k < numSequences; ++k) {
+                assertEquals("(internal check) sequence length", this.length, written[k]);
                 assertEquals("sequence length", this.length, inSeqs[k].getLength());
                 Iterator<Integer> inIt = inSeqs[k].iterator();
                 for (int i = 0; i < this.length; ++i) {

@@ -9,7 +9,7 @@
     <name>Sequitur compression algorithm</name>
     <description></description>
 
-    <version>0.5-SNAPSHOT</version>
+    <version>1.0</version>
     <packaging>jar</packaging>
     <url>http://www.st.cs.uni-sb.de/</url>
     <inceptionYear>2008</inceptionYear>
@@ -125,20 +125,15 @@
         <dependency>
             <groupId>de.hammacher</groupId>
             <artifactId>utilities</artifactId>
-            <version>1.2.8</version>
+            <version>1.2.10</version>
         </dependency>
     </dependencies>
 
     <repositories>
         <repository>
-            <id>st-internal</id>
-            <name>internal artifacts released by the chair</name>
-            <url>https://maven.st.cs.uni-saarland.de/nexus/content/groups/internal</url>
-        </repository>
-        <repository>
-            <id>st-thirdparty</id>
-            <name>3rd party libraries hosted at st.</name>
-            <url>https://maven.st.cs.uni-saarland.de/nexus/content/repositories/thirdparty/</url>
+            <id>titania</id>
+            <name>the students' nexus server</name>
+            <url>http://titania.fs.uni-saarland.de/nexus/content/groups/public</url>
         </repository>
     </repositories>
 
