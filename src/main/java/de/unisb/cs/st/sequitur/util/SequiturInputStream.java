@@ -24,26 +24,36 @@ import de.unisb.cs.st.sequitur.input.ObjectReader;
 
 public class SequiturInputStream extends InputStream {
 
-    private static final class ByteReader implements ObjectReader<Byte> {
+    private static enum ByteReader implements ObjectReader<Object> {
 
-        public static final ByteReader instance = new ByteReader();
+        asByte(false),
+        asChar(true);
 
-        public Byte readObject(ObjectInputStream inputStream)
+        private boolean printAsChar;
+
+        ByteReader(boolean printAsChar) {
+            this.printAsChar = printAsChar;
+        }
+
+        public Object readObject(ObjectInputStream inputStream)
                 throws IOException {
-            return Byte.valueOf(inputStream.readByte());
+            byte b = inputStream.readByte();
+            if (this.printAsChar)
+                return Character.valueOf((char) b);
+            return Byte.valueOf(b);
         }
 
     }
 
 
-    private final InputSequence<Byte> inSeq;
-    private ListIterator<Byte> inputIterator;
+    private final InputSequence<Object> inSeq;
+    private ListIterator<Object> inputIterator;
 
-    public SequiturInputStream(InputStream in) throws IOException {
+    public SequiturInputStream(InputStream in, boolean printAsCharacter) throws IOException {
         super();
         ObjectInputStream objIn = new ObjectInputStream(in);
         try {
-            this.inSeq = InputSequence.readFrom(objIn, ByteReader.instance);
+            this.inSeq = InputSequence.readFrom(objIn, printAsCharacter ? ByteReader.asChar : ByteReader.asByte);
         } catch (ClassNotFoundException e) {
             throw new IOException(e.toString());
         }
@@ -52,7 +62,12 @@ public class SequiturInputStream extends InputStream {
 
     @Override
     public int read() throws IOException {
-        return this.inputIterator.hasNext() ? this.inputIterator.next() : -1;
+        if (!this.inputIterator.hasNext())
+            return -1;
+        Object nextObj = this.inputIterator.next();
+        if (nextObj instanceof Byte)
+            return ((Byte) nextObj).intValue();
+        return ((Character) nextObj).charValue();
     }
 
     @Override
@@ -70,6 +85,11 @@ public class SequiturInputStream extends InputStream {
             return super.skip(n);
         this.inputIterator = this.inSeq.iterator(index + n);
         return n;
+    }
+
+    @Override
+    public String toString() {
+        return this.inSeq.toString();
     }
 
 }

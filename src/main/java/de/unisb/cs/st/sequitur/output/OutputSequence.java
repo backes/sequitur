@@ -67,14 +67,14 @@ public class OutputSequence<T> {
     }
 
     public void writeOut(final ObjectOutputStream objOut, final boolean includeGrammar) throws IOException {
-        finish();
+        flush();
         if (includeGrammar)
             writeOutGrammar(objOut);
         DataOutput.writeLong(objOut, getStartRuleNumber());
     }
 
     public void writeOutGrammar(final ObjectOutputStream objOut) throws IOException {
-        finish();
+        flush();
         this.grammar.writeOut(objOut, this.objectWriter);
     }
 
@@ -84,10 +84,10 @@ public class OutputSequence<T> {
         if (this.firstRule.dummy.next != this.firstRule.dummy) {
             sb.append(this.firstRule.dummy.next);
             for (Symbol<T> s = this.firstRule.dummy.next.next; s != this.firstRule.dummy; s = s.next)
-                sb.append(" ").append(s);
+                sb.append(' ').append(s);
         }
         if (this.lastValueCount > 0) {
-            sb.append("  + ").append(this.lastValueCount).append("x").append(this.lastValue);
+            sb.append("  + ").append(this.lastValueCount).append('x').append(this.lastValue);
         }
 
         Set<Rule<T>> rules = this.firstRule.getUsedRules();
@@ -100,7 +100,7 @@ public class OutputSequence<T> {
         this.firstRule.ensureInvariants(this.grammar);
     }
 
-    public void finish() {
+    public void flush() {
         if (this.lastValueCount > 0) {
             this.firstRule.append(new Terminal<T>(this.lastValue, this.lastValueCount), this.grammar);
             this.lastValue = null;

@@ -22,9 +22,9 @@ import java.util.IdentityHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.TreeMap;
-import java.util.Map.Entry;
 
 import de.hammacher.util.LongArrayList;
 import de.unisb.cs.st.sequitur.output.Rule.Dummy;
@@ -228,7 +228,7 @@ class Grammar<T> {
         }
         // then, fill in the first rule of sequences that use this grammar
         for (final OutputSequence<T> seq: this.usingSequences) {
-            seq.finish();
+            seq.flush();
             getRuleNr(seq.firstRule, ruleQueue);
         }
         for (final Rule<T> rule: ruleQueue)

@@ -25,6 +25,8 @@ public class CmdLine {
     public static void main(String[] args) {
         String input = null, output = null;
         boolean decompress = false;
+        boolean printGrammar = false;
+        boolean printAsChars = false;
         for (int i = 0; i < args.length; ++i) {
             String arg = args[i];
             if ("-i".equals(arg)) {
@@ -38,6 +40,10 @@ public class CmdLine {
             } else if ("-h".equals(arg)) {
                 help(System.out);
                 System.exit(-1);
+            } else if ("-g".equals(arg)) {
+                printGrammar = true;
+            } else if ("-t".equals(arg)) {
+                printAsChars = true;
             }
         }
 
@@ -60,9 +66,9 @@ public class CmdLine {
             fIn = new FileInputStream(inputFile);
             fOut = new FileOutputStream(outputFile);
             if (decompress)
-                decompress(fIn, fOut);
+                decompress(fIn, fOut, printGrammar, printAsChars);
             else
-                compress(fIn, fOut);
+                compress(fIn, fOut, printGrammar, printAsChars);
         } catch (IOException e) {
             System.err.format("An error occured while %scompressing: %s%n",
                 decompress ? "de" : "", e);
@@ -79,17 +85,27 @@ public class CmdLine {
         }
     }
 
-    private static void compress(FileInputStream fIn, FileOutputStream fOut) throws IOException {
-        SequiturOutputStream seqOut = new SequiturOutputStream(fOut);
+    private static void compress(FileInputStream fIn, FileOutputStream fOut, boolean printGrammar, boolean printAsChars) throws IOException {
+        SequiturOutputStream seqOut = new SequiturOutputStream(fOut, printAsChars);
         byte[] buf = new byte[8*1024];
         int read;
         while ((read = fIn.read(buf, 0, 8*1024)) != -1)
             seqOut.write(buf, 0, read);
+
+        if (printGrammar) {
+            seqOut.flush();
+            System.out.println(seqOut);
+        }
+
         seqOut.close();
     }
 
-    private static void decompress(FileInputStream fIn, FileOutputStream fOut) throws IOException {
-        SequiturInputStream seqIn = new SequiturInputStream(fIn);
+    private static void decompress(FileInputStream fIn, FileOutputStream fOut, boolean printGrammar, boolean printAsCharacters) throws IOException {
+        SequiturInputStream seqIn = new SequiturInputStream(fIn, printAsCharacters);
+
+        if (printGrammar)
+            System.out.println(seqIn);
+
         byte[] buf = new byte[8*1024];
         int read;
         while ((read = seqIn.read(buf, 0, 8*1024)) != -1)
@@ -100,10 +116,12 @@ public class CmdLine {
     private static void help(PrintStream out) {
         out.println("Usage: java " + CmdLine.class.getName() + " [options]");
         out.println("  where [options] is");
-        out.println("    -i <filename>       the input file");
-        out.println("    -o <filename>       the output file");
         out.println("    -d                  to decompress (default is compressing)");
         out.println("    -h                  to print this help");
+        out.println("    -g                  to print the sequitur grammar before decompression / after compression");
+        out.println("    -i <filename>       the input file");
+        out.println("    -o <filename>       the output file");
+        out.println("    -t                  print grammar as text (raw bytes), rather than integers");
     }
 
     private static void ensureMore(String[] args, int pos, int additional) {

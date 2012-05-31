@@ -13,16 +13,14 @@
  */
 package de.unisb.cs.st.sequitur.input;
 
+import gnu.trove.impl.Constants;
+import gnu.trove.map.TObjectLongMap;
+import gnu.trove.map.hash.TObjectLongHashMap;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.Queue;
-import java.util.Set;
-import java.util.TreeSet;
 
 import de.hammacher.util.LongArrayList;
 import de.hammacher.util.LongHolder;
@@ -31,20 +29,19 @@ import de.hammacher.util.streams.MyByteArrayInputStream;
 // package-private
 class Rule<T> {
 
-    protected final List<Symbol<T>> symbols;
+    protected final Symbol<T>[] symbols;
     private long length;
     private long[] positionAfter = null;
 
-    protected Rule(final List<Symbol<T>> symbols) {
+    protected Rule(Symbol<T>[] symbols) {
         this.symbols = symbols;
     }
 
     public void substituteRealRules(final Grammar<T> grammar) {
-        final ListIterator<Symbol<T>> it = this.symbols.listIterator();
-        while (it.hasNext()) {
-            final Symbol<T> sym = it.next();
+        for (int i = this.symbols.length - 1; i >= 0; --i) {
+            Symbol<T> sym = this.symbols[i];
             if (sym instanceof NonTerminal<?>)
-                it.set(((NonTerminal<T>)sym).substituteRealRules(grammar));
+                this.symbols[i] = ((NonTerminal<T>)sym).substituteRealRules(grammar);
         }
     }
 
@@ -66,25 +63,29 @@ class Rule<T> {
         return true;
     }
 
-    public Set<Rule<T>> getUsedRules() {
-        Set<Rule<T>> rules = new HashSet<Rule<T>>();
-        long rulesAdded = 0;
-        final Queue<Rule<T>> ruleQueue = new LinkedList<Rule<T>>();
-        ruleQueue.add(this);
+    public TObjectLongMap<Rule<T>> getUsedRules() {
+        TObjectLongMap<Rule<T>> rules = new TObjectLongHashMap<Rule<T>>(Constants.DEFAULT_CAPACITY, Constants.DEFAULT_LOAD_FACTOR, -1);
 
-        while (!ruleQueue.isEmpty()) {
-            final Rule<T> r = ruleQueue.poll();
-            for (final Symbol<T> s: r.symbols) {
-                if (s instanceof NonTerminal<?>) {
-                    final Rule<T> newR = ((NonTerminal<T>)s).getRule();
-                    if (rules.add(newR)) {
-                        if (++rulesAdded == 1<<30)
-                            rules = new TreeSet<Rule<T>>(rules);
-                        ruleQueue.add(newR);
+        List<Rule<T>> iteratedList = new ArrayList<Rule<T>>(32);
+        List<Rule<T>> newList = new ArrayList<Rule<T>>(32);
+
+        iteratedList.add(this);
+
+        do {
+            for (Rule<T> rule : iteratedList) {
+                for (Symbol<T> sym: rule.symbols) {
+                    if (sym instanceof NonTerminal<?>) {
+                        Rule<T> newRule = ((NonTerminal<T>)sym).getRule();
+                        if (rules.adjustOrPutValue(newRule, 1, 1) == 1) // increase counter. new rule?
+                            newList.add(newRule);
                     }
                 }
             }
-        }
+            List<Rule<T>> nextNewList = iteratedList;
+            iteratedList = newList;
+            newList = nextNewList;
+            newList.clear();
+        } while (!iteratedList.isEmpty());
 
         return rules;
     }
@@ -136,9 +137,10 @@ class Rule<T> {
                 objIn.readFully(headerBuf);
                 headerInputStream = new MyByteArrayInputStream(headerBuf);
             }
-            final List<Symbol<T>> symbols = new ArrayList<Symbol<T>>(length);
+            @SuppressWarnings("unchecked")
+            Symbol<T>[] symbols = (Symbol<T>[]) new Symbol<?>[length];
             int pos = 3;
-            while (length-- != 0) {
+            for (int i = 0; i < length; ++i) {
                 if (pos-- == 0) {
                     assert headerInputStream != null;
                     header = headerInputStream.read();
@@ -146,16 +148,16 @@ class Rule<T> {
                 }
                 switch ((header >> (2*pos)) & 3) {
                 case 0:
-                    symbols.add(NonTerminal.<T>readFrom(objIn, false));
+                    symbols[i] = NonTerminal.<T>readFrom(objIn, false);
                     break;
                 case 1:
-                    symbols.add(NonTerminal.<T>readFrom(objIn, true));
+                    symbols[i] = NonTerminal.<T>readFrom(objIn, true);
                     break;
                 case 2:
-                    symbols.add(Terminal.readFrom(objIn, false, objectReader, checkInstance));
+                    symbols[i] = Terminal.readFrom(objIn, false, objectReader, checkInstance);
                     break;
                 case 3:
-                    symbols.add(Terminal.readFrom(objIn, true, objectReader, checkInstance));
+                    symbols[i] = Terminal.readFrom(objIn, true, objectReader, checkInstance);
                     break;
                 default:
                     throw new InternalError();
@@ -178,12 +180,12 @@ class Rule<T> {
      * @return the maximum offset whose position is smaller or equal to the given position
      */
     public int findOffset(final long position, final LongHolder positionHolder) {
-        if (this.symbols.size() < 10) {
+        if (this.symbols.length < 10) {
             // simply search for the position from the beginning
             int offset = 0;
             long after = 0;
             long newLength;
-            while (after + (newLength = this.symbols.get(offset).getLength(false)) <= position) {
+            while (after + (newLength = this.symbols[offset].getLength(false)) <= position) {
                 after += newLength;
                 ++offset;
             }
@@ -194,14 +196,15 @@ class Rule<T> {
 
         // initialize the position cache if necessary
         if (this.positionAfter == null) {
-            this.positionAfter = new long[this.symbols.size()-1];
+            this.positionAfter = new long[this.symbols.length - 1];
             long after = 0;
-            for (int i = 0; i < this.symbols.size()-1; ++i) {
-                this.positionAfter[i] = after += this.symbols.get(i).getLength(false);
+            for (int i = 0; i < this.symbols.length - 1; ++i) {
+                this.positionAfter[i] = after += this.symbols[i].getLength(false);
             }
         }
 
-        if (this.symbols.size() == 0 || this.positionAfter[0] > position) {
+        // FIXME what does this do? in the case that symbols.length == 0; we can't even reach this point
+        if (this.symbols.length == 0 || this.positionAfter[0] > position) {
             if (positionHolder != null)
                 positionHolder.set(0);
             return 0;
@@ -209,7 +212,7 @@ class Rule<T> {
 
         // now do a binary search
         int left = 0;
-        int right = this.symbols.size()-1;
+        int right = this.symbols.length - 1;
         int mid;
 
         while ((mid = (left + right) / 2) != left) {

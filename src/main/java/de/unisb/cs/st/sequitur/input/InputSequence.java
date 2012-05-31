@@ -13,14 +13,16 @@
  */
 package de.unisb.cs.st.sequitur.input;
 
+import gnu.trove.map.TObjectLongMap;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
-import java.util.Set;
 
 import de.hammacher.util.LongHolder;
 
@@ -42,7 +44,7 @@ public class InputSequence<T> implements Iterable<T> {
                     Rule<T> rule = firstRule;
                     while (true) {
                         this.ruleStack.add(rule);
-                        final Symbol<T> sym = rule.symbols.get(0);
+                        final Symbol<T> sym = rule.symbols[0];
                         if (sym instanceof Terminal<?>)
                             break;
                         rule = ((NonTerminal<T>)sym).getRule();
@@ -58,8 +60,8 @@ public class InputSequence<T> implements Iterable<T> {
                 int i = 0;
                 while (true) {
                     this.ruleStack.add(rule);
-                    final int ruleSymLength = rule.symbols.size();
-                    final Symbol<T> sym = rule.symbols.get(ruleSymLength-1);
+                    final int ruleSymLength = rule.symbols.length;
+                    final Symbol<T> sym = rule.symbols[ruleSymLength - 1];
                     if (this.rulePos.length == i) {
                         int[] newRulePos = new int[2*i];
                         System.arraycopy(this.rulePos, 0, newRulePos, 0, i);
@@ -97,7 +99,7 @@ public class InputSequence<T> implements Iterable<T> {
                         this.count = newCount;
                     }
                     this.rulePos[i] = ruleOffset;
-                    final Symbol<T> sym = rule.symbols.get(ruleOffset);
+                    final Symbol<T> sym = rule.symbols[ruleOffset];
                     if (sym.count > 1) {
                         final long oneLength = sym.getLength(true);
                         this.count[i] = (int) ((position - after) / oneLength);
@@ -130,8 +132,8 @@ public class InputSequence<T> implements Iterable<T> {
             if (!hasNext())
                 throw new NoSuchElementException();
             int depth = this.ruleStack.size()-1;
-            List<Symbol<T>> ruleSymbols = this.ruleStack.get(depth).symbols;
-            Symbol<T> sym = ruleSymbols.get(this.rulePos[depth]);
+            Symbol<T>[] ruleSymbols = this.ruleStack.get(depth).symbols;
+            Symbol<T> sym = ruleSymbols[this.rulePos[depth]];
             final T value = ((Terminal<T>)sym).getValue();
 
             while (true) {
@@ -139,8 +141,8 @@ public class InputSequence<T> implements Iterable<T> {
                     ++this.count[depth];
                     break;
                 }
-                if (this.rulePos[depth] != ruleSymbols.size()-1) {
-                    sym = ruleSymbols.get(++this.rulePos[depth]);
+                if (this.rulePos[depth] != ruleSymbols.length - 1) {
+                    sym = ruleSymbols[++this.rulePos[depth]];
                     this.count[depth] = 0;
                     break;
                 }
@@ -153,7 +155,7 @@ public class InputSequence<T> implements Iterable<T> {
                 }
                 this.ruleStack.remove(depth);
                 ruleSymbols = this.ruleStack.get(--depth).symbols;
-                sym = ruleSymbols.get(this.rulePos[depth]);
+                sym = ruleSymbols[this.rulePos[depth]];
             }
             while (sym instanceof NonTerminal<?>) {
                 final Rule<T> rule = ((NonTerminal<T>)sym).getRule();
@@ -168,7 +170,7 @@ public class InputSequence<T> implements Iterable<T> {
                 }
                 this.rulePos[depth] = 0;
                 this.count[depth] = 0;
-                sym = rule.symbols.get(0);
+                sym = rule.symbols[0];
             }
             ++this.pos;
             return value;
@@ -190,11 +192,11 @@ public class InputSequence<T> implements Iterable<T> {
             while (true) {
                 if (this.count[depth] != 0) {
                     --this.count[depth];
-                    sym = this.ruleStack.get(depth).symbols.get(this.rulePos[depth]);
+                    sym = this.ruleStack.get(depth).symbols[this.rulePos[depth]];
                     break;
                 }
                 if (this.rulePos[depth] != 0) {
-                    sym = this.ruleStack.get(depth).symbols.get(--this.rulePos[depth]);
+                    sym = this.ruleStack.get(depth).symbols[--this.rulePos[depth]];
                     this.count[depth] = sym.count-1;
                     break;
                 }
@@ -211,8 +213,8 @@ public class InputSequence<T> implements Iterable<T> {
                     System.arraycopy(this.count, 0, newCount, 0, depth);
                     this.count = newCount;
                 }
-                this.rulePos[depth] = rule.symbols.size()-1;
-                sym = rule.symbols.get(this.rulePos[depth]);
+                this.rulePos[depth] = rule.symbols.length - 1;
+                sym = rule.symbols[this.rulePos[depth]];
                 this.count[depth] = sym.count-1;
             }
             --this.pos;
@@ -267,16 +269,51 @@ public class InputSequence<T> implements Iterable<T> {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
-        final Iterator<Symbol<T>> it = this.firstRule.symbols.iterator();
-        if (it.hasNext()) {
-            sb.append(it.next());
-            while (it.hasNext())
-                sb.append(' ').append(it.next());
+        if (this.firstRule.symbols.length > 0) {
+            sb.append(this.firstRule.symbols[0]);
+            for (int i = 1; i < this.firstRule.symbols.length; ++i)
+                sb.append(' ').append(this.firstRule.symbols[i]);
         }
 
-        final Set<Rule<T>> rules = this.firstRule.getUsedRules();
-        for (final Rule<T> r: rules)
-            sb.append(System.getProperty("line.separator")).append(r);
+        final TObjectLongMap<Rule<T>> rules = this.firstRule.getUsedRules();
+        @SuppressWarnings("unchecked")
+        Rule<T>[] keys = rules.keys((Rule<T>[]) new Rule<?>[rules.size()]);
+        // sort by number of uses descending, then length (in symbols) descending
+        Arrays.sort(keys, new Comparator<Rule<T>>() {
+            public int compare(Rule<T> r1, Rule<T> r2) {
+                long numUses1 = rules.get(r1);
+                long numUses2 = rules.get(r2);
+                if (numUses1 != numUses2)
+                    return numUses1 > numUses2 ? -1 : 1;
+                long length1 = r1.symbols.length;
+                long length2 = r2.symbols.length;
+                return length1 == length2 ? 0 : length1 > length2 ? -1 : 1;
+            }
+        });
+        final String newline = System.getProperty("line.separator");
+        char[] blanks = new char[9];
+        Arrays.fill(blanks, ' ');
+        for (Rule<T> rule : keys) {
+            long numUses = rules.get(rule);
+            assert numUses >= 1;
+            byte fillBlanks = numUses < 10       ? 7
+                            : numUses < 100      ? 6
+                            : numUses < 1000     ? 5
+                            : numUses < 10000    ? 4
+                            : numUses < 100000   ? 3
+                            : numUses < 1000000  ? 2
+                            : numUses < 10000000 ? 1
+                            : (byte)0;
+            sb.append(newline).append(numUses).append('x').append(blanks,  0, fillBlanks + 2).append(rule);
+            /* print the whole expansion of the rule: */
+            /*
+            sb.append(newline).append("==> ");
+            Itr<T> itr = new Itr<T>(0, rule);
+            while (itr.hasNext())
+                sb.append(itr.next());
+            */
+        }
+
         return sb.toString();
     }
 

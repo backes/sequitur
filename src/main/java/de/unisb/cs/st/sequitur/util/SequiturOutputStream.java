@@ -24,28 +24,45 @@ import de.unisb.cs.st.sequitur.output.OutputSequence;
 
 public class SequiturOutputStream extends FilterOutputStream {
 
-    private static final class ByteWriter implements ObjectWriter<Byte> {
+    private static enum ByteWriter implements ObjectWriter<Object> {
 
-        public static final ByteWriter instance = new ByteWriter();
+        instance;
 
-        public void writeObject(Byte object, ObjectOutputStream outputStream)
+        public void writeObject(Object object, ObjectOutputStream outputStream)
                 throws IOException {
-            outputStream.writeByte(object.intValue());
+            byte b;
+            if (object instanceof Byte)
+                b = ((Byte) object).byteValue();
+            else
+                b = (byte) ((Character) object).charValue();
+            outputStream.writeByte(b);
         }
 
     }
 
 
-    private final OutputSequence<Byte> outSeq;
+    private final OutputSequence<Object> outSeq;
+    private final boolean printAsChars;
 
-    public SequiturOutputStream(OutputStream out) {
+    public SequiturOutputStream(OutputStream out, boolean printAsChars) {
         super(out);
-        this.outSeq = new OutputSequence<Byte>(ByteWriter.instance);
+        this.outSeq = new OutputSequence<Object>(ByteWriter.instance);
+        this.printAsChars = printAsChars;
     }
 
     @Override
     public void write(int b) throws IOException {
-        this.outSeq.append(Byte.valueOf((byte)b));
+        Object obj;
+        if (this.printAsChars)
+            obj = Character.valueOf((char) (b & 0xff));
+        else
+            obj = Byte.valueOf((byte) b);
+        this.outSeq.append(obj);
+    }
+
+    @Override
+    public void flush() throws IOException {
+        this.outSeq.flush();
     }
 
     @Override
@@ -54,6 +71,11 @@ public class SequiturOutputStream extends FilterOutputStream {
         this.outSeq.writeOut(objOut, true);
         objOut.close();
         super.close();
+    }
+
+    @Override
+    public String toString() {
+        return this.outSeq.toString();
     }
 
 }
