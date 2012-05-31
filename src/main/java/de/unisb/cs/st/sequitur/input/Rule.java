@@ -203,13 +203,6 @@ class Rule<T> {
             }
         }
 
-        // FIXME what does this do? in the case that symbols.length == 0; we can't even reach this point
-        if (this.symbols.length == 0 || this.positionAfter[0] > position) {
-            if (positionHolder != null)
-                positionHolder.set(0);
-            return 0;
-        }
-
         // now do a binary search
         int left = 0;
         int right = this.symbols.length - 1;
