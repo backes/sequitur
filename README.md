@@ -1,4 +1,4 @@
-sequitur
+Sequitur
 ========
 
 Implementation of the Sequitur compression scheme (extended by runlength
@@ -8,12 +8,16 @@ See the wikipedia entry for a description of sequitur:
 * english: http://en.wikipedia.org/wiki/Sequitur_algorithm
 * german: http://de.wikipedia.org/wiki/Sequitur
 
-This implementation is fully in Java, and very flexible, e.g. in the data types
-that are to be compressed. It can be single bytes or integers, but also more
+Implementation
+--------------
+
+This implementation is fully in Java, and uses the [Maven build system](http://maven.apache.org/).  
+It is very flexible, e.g. in the data types that are to be compressed.
+It can be single bytes or integers, but also more
 complex objects, as long as they implement the hashCode() and equals() methods.
 
 Because of this flexibility the implementation is not very fast, because the
-intrinsic data types have to be wrapped into an object (Byte, Integer, ...).
+intrinsic data types have to be wrapped into objects (Byte, Integer, ...).
 
 The interface is kept quite simple: For producing a sequitur grammar, just
 instantiate an OutputSequence, and append new objects to it.  
