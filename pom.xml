@@ -109,8 +109,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.2</version>
                 <configuration>
-                    <source>1.5</source>
-                    <target>1.5</target>
+                    <source>1.6</source>
+                    <target>1.6</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -118,7 +118,7 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>2.10.1</version>
                 <configuration>
-                    <source>1.5</source>
+                    <source>1.6</source>
                 </configuration>
                 <executions>
                     <execution>
@@ -225,7 +225,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
-                    <source>1.5</source>
+                    <source>1.6</source>
                     <show>public</show>
                     <minmemory>128m</minmemory>
                     <maxmemory>512m</maxmemory>
@@ -264,7 +264,7 @@
                     <!-- We want individual PMD reports for each project. -->
                     <aggregate>false</aggregate>
                     <linkXref>true</linkXref>
-                    <targetJdk>1.5</targetJdk>
+                    <targetJdk>1.6</targetJdk>
                 </configuration>
             </plugin>
             <!-- Taglist Maven Plugin - http://mojo.codehaus.org/taglist-maven-plugin/ -->
