@@ -88,7 +88,7 @@ public class RandomIntegrationTest {
             OutputSequence<Integer> outSeq = new OutputSequence<Integer>();
             int[] ints = new int[this.length];
             for (int i = 0; i < this.length; ++i) {
-                ints[i] = rand.nextInt(1+this.length/5);
+                ints[i] = rand.nextInt(1+this.length/20);
                 outSeq.append(ints[i]);
             }
             ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
